@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vestanet Platform Check</title>
+<style>
+  body {
+    background: #0e0e10;
+    color: #fff;
+    font-family: system-ui, sans-serif;
+    text-align: center;
+    padding: 40px;
+  }
+  .card {
+    background: #1a1a1d;
+    padding: 30px;
+    border-radius: 16px;
+    max-width: 400px;
+    margin: 80px auto;
+    box-shadow: 0 0 20px rgba(255,255,255,0.1);
+  }
+  a.button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 24px;
+    background: #007aff;
+    color: #fff;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h2 id="title">Проверка платформы...</h2>
+    <p id="message"></p>
+    <a id="action" class="button" href="#" style="display:none;">Продолжить</a>
+  </div>
+
+  <script>
+    const ua = navigator.userAgent.toLowerCase();
+    const title = document.getElementById('title');
+    const msg = document.getElementById('message');
+    const btn = document.getElementById('action');
+
+    function show(titleText, messageText, link = null) {
+      title.textContent = titleText;
+      msg.textContent = messageText;
+      if (link) {
+        btn.style.display = 'inline-block';
+        btn.href = link;
+      } else {
+        btn.style.display = 'none';
+      }
+    }
+
+    if (/iphone|ipad|ipod/.test(ua)) {
+      show(
+        "iOS обнаружен 📱",
+        "Нажмите кнопку ниже, чтобы установить профиль Vestanet.",
+        "YOUR_IOS_MOBILECONFIG_LINK_HERE"
+      );
+    } 
+    else if (/windows/.test(ua)) {
+      show(
+        "Windows обнаружен 💻",
+        "Нажмите, чтобы перейти к версии для Windows.",
+        "YOUR_WINDOWS_LINK_HERE"
+      );
+    }
+    else if (/mac os|macintosh/.test(ua)) {
+      show(
+        "macOS не поддерживается 😔",
+        "К сожалению, запуск на macOS невозможен."
+      );
+    } 
+    else if (/android/.test(ua)) {
+      show(
+        "Android не поддерживается 😔",
+        "К сожалению, Android не поддерживается."
+      );
+    } 
+    else {
+      show(
+        "Неизвестная платформа 🤔",
+        "Ваше устройство не распознано."
+      );
+    }
+  </script>
+</body>
+</html>

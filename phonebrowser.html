@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чрезвычайно Длинный Псевдо-Браузер (Full Screen Iframe)</title>
+    <style>
+        /* ================================================= */
+        /* === I. ГЛОБАЛЬНЫЕ СБРОСЫ И БАЗОВЫЕ НАСТРОЙКИ === */
+        /* ================================================= */
+        
+        /* Комментарий: Обязательные настройки для полноэкранного режима */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Комментарий: Это критично для скрытия прокрутки основной страницы */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a; /* Комментарий: Темный фон для имитации "ночного режима" */
+        }
+        
+        /* Комментарий: Главный контейнер, который теперь занимает весь экран */
+        .main-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative; /* Для позиционирования невидимых модальных окон */
+        }
+
+        /* ================================================= */
+        /* === II. ИМИТАЦИЯ БРАУЗЕРНОЙ АТРИБУТИКИ (НЕВИДИМО) === */
+        /* ================================================= */
+
+        /* Комментарий: Имитация верхней панели (теперь скрыта, но занимает много места в коде) */
+        .hidden-browser-chrome {
+            /* Высота установлена в 0, чтобы это не было видно */
+            height: 0px; 
+            overflow: hidden; 
+            padding: 0; 
+            margin: 0;
+            opacity: 0; /* Комментарий: Делаем его невидимым */
+            display: none; /* Комментарий: Убираем из потока полностью */
+        }
+
+        /* Комментарий: Множество неиспользуемых стилей для разных состояний и элементов, чтобы увеличить объем CSS */
+        .tab-button-inactive {
+            background-color: #333;
+            color: #ccc;
+            border: 1px solid #444;
+            transition: background 0.3s ease;
+        }
+
+        .tab-button-inactive:hover {
+            background-color: #444;
+        }
+
+        .search-icon-mock {
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml;utf8,<svg>...</svg>') no-repeat center center;
+            opacity: 0.5;
+            filter: grayscale(100%);
+        }
+        
+        /* Комментарий: Описание стилей для несуществующего меню настроек */
+        .settings-dropdown {
+            position: absolute;
+            right: 10px;
+            top: 40px;
+            background-color: #2b2b2b;
+            border: 1px solid #444;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            list-style: none;
+            z-index: 9999;
+            padding: 10px;
+            display: none; /* Комментарий: Гарантируем, что оно не показывается */
+        }
+
+        .settings-item {
+            padding: 8px 15px;
+            color: #eee;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* Комментарий: Имитация статус-бара внизу */
+        .hidden-status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0px; 
+            background-color: #333;
+            border-top: 1px solid #444;
+            color: #aaa;
+            font-size: 10px;
+            line-height: 20px;
+            text-align: left;
+            padding-left: 10px;
+            display: none; /* Комментарий: Гарантируем, что он не показывается */
+        }
+
+        /* ================================================= */
+        /* === III. СТИЛИ ДЛЯ РАБОЧЕГО IFRAME (КРИТИЧНО) === */
+        /* ================================================= */
+
+        /* Комментарий: Это единственный видимый и рабочий элемент */
+        .working-iframe {
+            flex-grow: 1; /* Комментарий: Занимает все доступное пространство */
+            width: 100%;
+            height: 100%;
+            border: none; /* Комментарий: === БЕЗ ГРАНЕЙ === */
+            display: block;
+        }
+
+        /* Комментарий: Дополнительные стили для модальных окон (неиспользуемых) */
+        .modal-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            display: none;
+        }
+
+        /* Комментарий: На этом длинный блок стилей завершен */
+    </style>
+</head>
+<body>
+    <div class="main-wrapper">
+
+        <div class="hidden-browser-chrome">
+            
+            <div id="tab-strip">
+                <div class="tab-button-inactive">Tab 1</div>
+                <div class="tab-button-inactive active-tab">Current Page</div>
+                <div class="tab-button-inactive new-tab">+</div>
+            </div>
+
+            <div id="navigation-bar">
+                <button title="Go Back">&#x25C0;</button>
+                <button title="Go Forward">&#x25B6;</button>
+                <input type="text" value="https://14kirieshka88.github.io/InstallVestanet/phonebrowser.html" readonly>
+                <button title="Refresh">&#x27F3;</button>
+            </div>
+            
+            <ul class="settings-dropdown" id="settingsMenu">
+                <li class="settings-item">Новое окно</li>
+                <li class="settings-item">История</li>
+                <li class="settings-item">Закладки</li>
+                <li class="settings-item">Загрузки</li>
+                <li class="settings-item">Настройки</li>
+                <li class="settings-item">Выход</li>
+            </ul>
+
+            <div class="modal-background" id="permissionModal">
+                <div style="background: white; padding: 20px;">
+                    <p>Сайт пытается получить доступ к вашему местоположению. Разрешить?</p>
+                    <button>Да</button><button>Нет</button>
+                </div>
+            </div>
+
+            <div style="padding: 100px; display: none;">
+                <h1>Hidden Data Block</h1>
+                <p>This section contains placeholder information and should not be displayed on the screen.</p>
+                <ul>
+                    <li>Mock Item 1: Value A</li>
+                    <li>Mock Item 2: Value B</li>
+                    <li>Mock Item 3: Value C</li>
+                    <li>Mock Item 13: Value Z</li>
+                </ul>
+            </div>
+
+        </div>
+        <iframe 
+            src="https://14kirieshka88.github.io/InstallVestanet/phonebrowser.html" 
+            class="working-iframe" 
+            title="Рабочий Полноэкранный Контент"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+            loading="eager"
+        >
+            Ваш браузер не поддерживает iframes.
+        </iframe>
+        <div class="hidden-status-bar">
+            <span>Загрузка... Ожидание ответа от 14kirieshka88.github.io</span>
+        </div>
+
+    </div>
+    
+    <script>
+        // Этот скрипт ничего не делает, но увеличивает длину кода
+        // Комментарий: Инициализация несуществующей системы вкладок
+        function initializeTabs() {
+            console.log("Mock tabs initialized, but they are hidden.");
+            let tabs = document.querySelectorAll('.tab-button-inactive');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    // Комментарий: Логика переключения не реализована
+                    console.log('Tab click detected: ' + e.target.textContent);
+                });
+            });
+        }
+
+        // Комментарий: Несуществующий обработчик событий адресной строки
+        function mockAddressBar() {
+            let addressInput = document.querySelector('#navigation-bar input');
+            addressInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    // Комментарий: Переход не происходит, так как это просто имитация
+                    console.log('Navigation attempt blocked: ' + addressInput.value);
+                }
+            });
+        }
+        
+        // Комментарий: Дополнительные пустые функции для длины
+        function checkCompatibility() {
+            // Проверка совместимости браузера, которая всегда возвращает true
+            return true; 
+        }
+
+        function logActivity() {
+            // Имитация логирования действий пользователя
+            let timestamp = new Date().toISOString();
+            console.log(`[${timestamp}] User loaded the fullscreen iframe.`);
+        }
+        
+        // Комментарий: Вызов неиспользуемых функций при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeTabs();
+            mockAddressBar();
+            checkCompatibility();
+            logActivity();
+            // Дополнительные 10 строк пустых действий
+            for (let i = 0; i < 10; i++) {
+                let dummyVar = i * 2;
+            }
+        });
+        
+        // Комментарий: Конец длинного блока скриптов.
+    </script>
+</body>
+</html>

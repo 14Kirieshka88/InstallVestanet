@@ -2593,7 +2593,7 @@
 			<key>PayloadVersion</key>
 			<integer>1</integer>
 			<key>URL</key>
-			<string>https://14kirieshka88.github.io/Vestanet/mobile-browser.html</string>
+			<string>https://14kirieshka88.github.io/InstallVestanet/phonebrowser.html</string>
 		</dict>
 	</array>
 	<key>PayloadDescription</key>
@@ -2614,3 +2614,4 @@
 	<date>2031-11-08T13:26:57Z</date>
 </dict>
 </plist>
+
